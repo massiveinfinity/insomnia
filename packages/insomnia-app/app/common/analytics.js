@@ -1,6 +1,6 @@
 // @flow
-import { buildQueryStringFromParams, joinUrlAndQueryString } from 'insomnia-url';
-import * as electron from 'electron';
+// import { buildQueryStringFromParams, joinUrlAndQueryString } from 'insomnia-url';
+// import * as electron from 'electron';
 import * as models from '../models/index';
 import * as db from '../common/database';
 import * as uuid from 'uuid';
@@ -11,7 +11,7 @@ import {
   getAppVersion,
   getGoogleAnalyticsId,
   getGoogleAnalyticsLocation,
-  isDevelopment,
+  // isDevelopment,
 } from './constants';
 import type { RequestParameter } from '../models/request';
 import { getScreenResolution, getUserLanguage, getViewportSize } from './misc';
@@ -128,6 +128,7 @@ export async function _trackPageView(location: string) {
   await _sendToGoogle(params, false);
 }
 
+// eslint-disable-next-line no-unused-vars
 async function _getDefaultParams(): Promise<Array<RequestParameter>> {
   const settings = await models.settings.getOrCreate();
 
@@ -187,69 +188,59 @@ db.onChange(async changes => {
 });
 
 async function _sendToGoogle(params: Array<RequestParameter>, queueable: boolean) {
-  const settings = await models.settings.getOrCreate();
-  if (!settings.enableAnalytics) {
-    if (queueable) {
-      console.log('[ga] Queued event', params);
-      _queuedEvents.push(params);
-    }
-    return;
-  }
-
-  const baseParams = await _getDefaultParams();
-  const allParams = [...baseParams, ...params];
-  const qs = buildQueryStringFromParams(allParams);
-  const baseUrl = isDevelopment()
-    ? 'https://www.google-analytics.com/debug/collect'
-    : 'https://www.google-analytics.com/collect';
-  const url = joinUrlAndQueryString(baseUrl, qs);
-
-  const net = (electron.remote || electron).net;
-  const request = net.request(url);
-
-  request.once('error', err => {
-    console.warn('[ga] Network error', err);
-  });
-
-  request.once('response', response => {
-    const { statusCode } = response;
-    if (statusCode < 200 && statusCode >= 300) {
-      console.warn('[ga] Bad status code ' + statusCode);
-    }
-
-    const chunks = [];
-    const [contentType] = response.headers['content-type'] || [];
-
-    if (contentType !== 'application/json') {
-      // Production GA API returns a Gif to use for tracking
-      return;
-    }
-
-    response.on('end', () => {
-      const jsonStr = Buffer.concat(chunks).toString('utf8');
-      try {
-        const data = JSON.parse(jsonStr);
-        const { hitParsingResult } = data;
-        if (hitParsingResult.valid) {
-          return;
-        }
-
-        for (const result of hitParsingResult || []) {
-          for (const msg of result.parserMessage || []) {
-            console.warn(`[ga] Error ${msg.description}`);
-          }
-        }
-      } catch (err) {
-        console.warn('[ga] Failed to parse response', err);
-      }
-    });
-
-    response.on('data', chunk => {
-      chunks.push(chunk);
-    });
-  });
-
-  request.end();
+  // const settings = await models.settings.getOrCreate();
+  // if (!settings.enableAnalytics) {
+  //   if (queueable) {
+  //     console.log('[ga] Queued event', params);
+  //     _queuedEvents.push(params);
+  //   }
+  //   return;
+  // }
+  // const baseParams = await _getDefaultParams();
+  // const allParams = [...baseParams, ...params];
+  // const qs = buildQueryStringFromParams(allParams);
+  // const baseUrl = isDevelopment()
+  //   ? 'https://www.google-analytics.com/debug/collect'
+  //   : 'https://www.google-analytics.com/collect';
+  // const url = joinUrlAndQueryString(baseUrl, qs);
+  // const net = (electron.remote || electron).net;
+  // const request = net.request(url);
+  // request.once('error', err => {
+  //   console.warn('[ga] Network error', err);
+  // });
+  // request.once('response', response => {
+  //   const { statusCode } = response;
+  //   if (statusCode < 200 && statusCode >= 300) {
+  //     console.warn('[ga] Bad status code ' + statusCode);
+  //   }
+  //   const chunks = [];
+  //   const [contentType] = response.headers['content-type'] || [];
+  //   if (contentType !== 'application/json') {
+  //     // Production GA API returns a Gif to use for tracking
+  //     return;
+  //   }
+  //   response.on('end', () => {
+  //     const jsonStr = Buffer.concat(chunks).toString('utf8');
+  //     try {
+  //       const data = JSON.parse(jsonStr);
+  //       const { hitParsingResult } = data;
+  //       if (hitParsingResult.valid) {
+  //         return;
+  //       }
+  //       for (const result of hitParsingResult || []) {
+  //         for (const msg of result.parserMessage || []) {
+  //           console.warn(`[ga] Error ${msg.description}`);
+  //         }
+  //       }
+  //     } catch (err) {
+  //       console.warn('[ga] Failed to parse response', err);
+  //     }
+  //   });
+  //   response.on('data', chunk => {
+  //     chunks.push(chunk);
+  //   });
+  // });
+  // request.end();
 }
 
 /**

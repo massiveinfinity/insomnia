@@ -65,6 +65,15 @@ export function remove(workspace: Workspace): Promise<void> {
   return db.remove(workspace);
 }
 
+export async function removeAll(cb): Promise<void> {
+  const workspaces = await db.all(type);
+  const tempWorkSpaces = await create({ name: 'temp' });
+  await Promise.all(workspaces.map(workspace => db.remove(workspace)));
+
+  cb && (await cb());
+  await db.remove(tempWorkSpaces);
+}
+
 async function _migrateExtractClientCertificates(workspace: Workspace): Promise<Workspace> {
   const certificates = (workspace: Object).certificates || null;
   if (!Array.isArray(certificates)) {

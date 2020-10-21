@@ -6,10 +6,14 @@ import {
   importUri,
 } from '../../common/import';
 import type { Workspace } from '../../models/workspace';
+import * as _workspace from '../../models/workspace';
 
-export function init(): { data: { import: Object, export: Object } } {
+export function init(): { data: { removeAll: Promise<void>, import: Object, export: Object } } {
   return {
     data: {
+      async removeAll(cb): Promise<void> {
+        await _workspace.removeAll(cb);
+      },
       import: {
         async uri(uri: string, options: { workspaceId?: string } = {}): Promise<void> {
           await importUri(() => Promise.resolve(options.workspaceId || null), uri);
