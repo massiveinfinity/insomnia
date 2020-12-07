@@ -1,3 +1,4 @@
+// @flow
 import React, { PureComponent } from 'react';
 import autobind from 'autobind-decorator';
 import ContentTypeDropdown from '../dropdowns/content-type-dropdown';
@@ -12,9 +13,17 @@ import {
   METHOD_HEAD,
   METHOD_OPTIONS,
   METHOD_DELETE,
+  METHOD_GRPC,
 } from '../../../common/constants';
 import * as models from '../../../models/index';
 import { trackEvent } from '../../../common/analytics';
+import { showModal } from './index';
+import ProtoFilesModal from './proto-files-modal';
+
+type RequestCreateModalOptions = {
+  parentId: string,
+  onComplete: string => void,
+};
 
 @autobind
 class RequestCreateModal extends PureComponent {
@@ -40,23 +49,42 @@ class RequestCreateModal extends PureComponent {
     }
   }
 
+  _isGrpcSelected() {
+    return this.state.selectedMethod === METHOD_GRPC;
+  }
+
   async _handleSubmit(e) {
     e.preventDefault();
 
     const { parentId, selectedContentType, selectedMethod } = this.state;
-    const request = await models.initModel(models.request.type, {
-      parentId,
-      name: this._input.value,
-      method: selectedMethod,
-    });
+    const requestName = this._input.value;
+    if (this._isGrpcSelected()) {
+      showModal(ProtoFilesModal, {
+        onSave: async (protoFileId: string) => {
+          const createdRequest = await models.grpcRequest.create({
+            parentId,
+            name: requestName,
+            protoFileId,
+          });
 
-    const finalRequest = await models.request.updateMimeType(
-      request,
-      this._shouldNotHaveBody() ? null : selectedContentType,
-      true,
-    );
+          this._onComplete(createdRequest._id);
+        },
+      });
+    } else {
+      const request = await models.initModel(models.request.type, {
+        parentId,
+        name: requestName,
+        method: selectedMethod,
+      });
 
-    this._onComplete(finalRequest);
+      const finalRequest = await models.request.updateMimeType(
+        request,
+        this._shouldNotHaveBody() ? null : selectedContentType,
+        true,
+      );
+
+      this._onComplete(finalRequest._id);
+    }
 
     this.hide();
 
@@ -77,7 +105,8 @@ class RequestCreateModal extends PureComponent {
       selectedMethod === METHOD_GET ||
       selectedMethod === METHOD_HEAD ||
       selectedMethod === METHOD_DELETE ||
-      selectedMethod === METHOD_OPTIONS
+      selectedMethod === METHOD_OPTIONS ||
+      selectedMethod === METHOD_GRPC
     );
   }
 
@@ -85,7 +114,7 @@ class RequestCreateModal extends PureComponent {
     this.modal.hide();
   }
 
-  show({ parentId, onComplete }) {
+  show({ parentId, onComplete }: RequestCreateModalOptions) {
     this.setState({
       parentId,
       selectedContentType: null,
@@ -124,6 +153,7 @@ class RequestCreateModal extends PureComponent {
               <div className="form-control form-control--no-label" style={{ width: 'auto' }}>
                 <MethodDropdown
                   right
+                  showGrpc
                   className="btn btn--clicky no-wrap"
                   method={selectedMethod}
                   onChange={this._handleChangeSelectedMethod}
@@ -146,9 +176,11 @@ class RequestCreateModal extends PureComponent {
           </form>
         </ModalBody>
         <ModalFooter>
-          <div className="margin-left italic txt-sm tall">
-            * Tip: paste Curl command into URL afterwards to import it
-          </div>
+          {!this._isGrpcSelected() && (
+            <div className="margin-left italic txt-sm tall">
+              * Tip: paste Curl command into URL afterwards to import it
+            </div>
+          )}
           <button className="btn" onClick={this._handleSubmit}>
             Create
           </button>

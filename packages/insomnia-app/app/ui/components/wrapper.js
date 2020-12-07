@@ -45,6 +45,7 @@ import SyncMergeModal from './modals/sync-merge-modal';
 import SyncHistoryModal from './modals/sync-history-modal';
 import SyncShareModal from './modals/sync-share-modal';
 import SyncBranchesModal from './modals/sync-branches-modal';
+import SyncDeleteModal from './modals/sync-delete-modal';
 import RequestRenderErrorModal from './modals/request-render-error-modal';
 import WorkspaceEnvironmentsEditModal from './modals/workspace-environments-edit-modal';
 import WorkspaceSettingsModal from './modals/workspace-settings-modal';
@@ -88,8 +89,11 @@ import {
   ACTIVITY_SPEC,
   ACTIVITY_UNIT_TEST,
   getAppName,
+  SortOrder,
 } from '../../common/constants';
 import { Spectral } from '@stoplight/spectral';
+import ProtoFilesModal from './modals/proto-files-modal';
+import { GrpcDispatchModalWrapper } from '../context/grpc';
 
 const spectral = new Spectral();
 
@@ -137,6 +141,7 @@ export type WrapperProps = {
   handleSetResponseFilter: Function,
   handleSetActiveResponse: Function,
   handleSetSidebarRef: Function,
+  handleSidebarSort: (sortOrder: SortOrder) => void,
   handleStartDragSidebar: Function,
   handleResetDragSidebar: Function,
   handleStartDragPaneHorizontal: Function,
@@ -181,6 +186,7 @@ export type WrapperProps = {
   activeCookieJar: CookieJar,
   activeEnvironment: Environment | null,
   activeGitRepository: GitRepository | null,
+  activeProtoFiles: Array<ProtoFile>,
   activeUnitTestResult: UnitTestResult | null,
   activeUnitTestSuites: Array<UnitTestSuite>,
   activeUnitTests: Array<UnitTest>,
@@ -519,6 +525,7 @@ class Wrapper extends React.PureComponent<WrapperProps, State> {
       activeCookieJar,
       activeEnvironment,
       activeGitRepository,
+      activeProtoFiles,
       activeRequest,
       activeWorkspace,
       activeWorkspaceClientCertificates,
@@ -533,6 +540,7 @@ class Wrapper extends React.PureComponent<WrapperProps, State> {
       handleRender,
       handleSetActiveWorkspace,
       handleShowExportRequestsModal,
+      handleSidebarSort,
       handleToggleMenuBar,
       isVariableUncovered,
       requestMetas,
@@ -639,7 +647,11 @@ class Wrapper extends React.PureComponent<WrapperProps, State> {
               workspace={activeWorkspace}
             />
 
-            <MoveRequestGroupModal ref={registerModal} workspaces={workspaces} />
+            <MoveRequestGroupModal
+              ref={registerModal}
+              workspaces={workspaces}
+              activeWorkspace={activeWorkspace}
+            />
 
             <WorkspaceSettingsModal
               ref={registerModal}
@@ -745,6 +757,7 @@ class Wrapper extends React.PureComponent<WrapperProps, State> {
                   vcs={vcs}
                   syncItems={syncItems}
                 />
+                <SyncDeleteModal ref={registerModal} workspace={activeWorkspace} vcs={vcs} />
                 <SyncHistoryModal ref={registerModal} workspace={activeWorkspace} vcs={vcs} />
                 <SyncShareModal ref={registerModal} workspace={activeWorkspace} vcs={vcs} />
               </React.Fragment>
@@ -770,6 +783,17 @@ class Wrapper extends React.PureComponent<WrapperProps, State> {
               childObjects={sidebarChildren.all}
               handleExportRequestsToFile={handleExportRequestsToFile}
             />
+
+            <GrpcDispatchModalWrapper>
+              {dispatch => (
+                <ProtoFilesModal
+                  ref={registerModal}
+                  grpcDispatch={dispatch}
+                  workspace={activeWorkspace}
+                  protoFiles={activeProtoFiles}
+                />
+              )}
+            </GrpcDispatchModalWrapper>
           </ErrorBoundary>
         </div>
         <React.Fragment key={`views::${this.state.activeGitBranch}`}>
@@ -823,6 +847,7 @@ class Wrapper extends React.PureComponent<WrapperProps, State> {
               handleSetResponseFilter={this._handleSetResponseFilter}
               handleShowCookiesModal={this._handleShowCookiesModal}
               handleShowRequestSettingsModal={this._handleShowRequestSettingsModal}
+              handleSidebarSort={handleSidebarSort}
               handleUpdateRequestAuthentication={Wrapper._handleUpdateRequestAuthentication}
               handleUpdateRequestBody={Wrapper._handleUpdateRequestBody}
               handleUpdateRequestHeaders={Wrapper._handleUpdateRequestHeaders}

@@ -9,12 +9,15 @@ const isMac = () => getAppPlatform() === 'darwin';
 const isLinux = () => getAppPlatform() === 'linux';
 const isWindows = () => getAppPlatform() === 'win32';
 
-const spectronConfig = appId => {
+export const isBuild = () => process.env.BUNDLE === 'build';
+export const isPackage = () => process.env.BUNDLE === 'package';
+
+const spectronConfig = (appId, appName) => {
   let packagePathSuffix = '';
   if (isWindows()) {
-    packagePathSuffix = 'win-unpacked/Insomnia.exe';
+    packagePathSuffix = path.join('win-unpacked', `${appName}.exe`);
   } else if (isMac()) {
-    packagePathSuffix = 'mac/Insomnia.app/Contents/MacOS/Insomnia';
+    packagePathSuffix = path.join('mac', `${appName}.app`, 'Contents', 'MacOS', appName);
   } else if (isLinux()) {
     packagePathSuffix = ''; // TODO: find out what this is
   }
@@ -27,17 +30,17 @@ const spectronConfig = appId => {
 };
 
 export const launchCore = async () => {
-  const config = spectronConfig(APP_ID_INSOMNIA);
+  const config = spectronConfig(APP_ID_INSOMNIA, 'Insomnia');
   return await launch(config);
 };
 
 export const launchDesigner = async () => {
-  const config = spectronConfig(APP_ID_DESIGNER);
+  const config = spectronConfig(APP_ID_DESIGNER, 'Insomnia Designer');
   return await launch(config);
 };
 
 const getLaunchPath = config =>
-  process.env.BUNDLE === 'package'
+  isPackage()
     ? { path: config.packagePath }
     : {
         path: electronPath,
@@ -67,6 +70,12 @@ const launch = async config => {
     // https://github.com/electron-userland/spectron/issues/60
     await app.browserWindow.focus();
     await app.browserWindow.setAlwaysOnTop(true);
+
+    // Set the implicit wait timeout to 0 (webdriver default)
+    //  https://webdriver.io/docs/timeouts.html#session-implicit-wait-timeout
+    // Spectron overrides it to an unreasonable value, as per the issue
+    //  https://github.com/electron-userland/spectron/issues/763
+    await app.client.setTimeout({ implicit: 0 });
   });
 
   return app;
