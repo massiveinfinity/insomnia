@@ -27,6 +27,7 @@ import { getContentTypeHeader } from '../common/misc';
 import { deconstructQueryStringToParams } from 'insomnia-url';
 import { GRANT_TYPE_AUTHORIZATION_CODE } from '../network/o-auth-2/constants';
 import { SIGNATURE_METHOD_HMAC_SHA1 } from '../network/o-auth-1/constants';
+import * as MIPluginHelper from '../plugins/mi-helper';
 
 export const name = 'Request';
 export const type = 'Request';
@@ -245,7 +246,7 @@ export function create(patch: $Shape<Request> = {}): Promise<Request> {
     throw new Error(`New Requests missing \`parentId\`: ${JSON.stringify(patch)}`);
   }
 
-  return db.docCreate(type, patch);
+  return db.docCreate(type, patch).then(res => MIPluginHelper.create(res));
 }
 
 export function getById(id: string): Promise<Request | null> {
@@ -257,7 +258,7 @@ export function findByParentId(parentId: string): Promise<Array<Request>> {
 }
 
 export function update(request: Request, patch: $Shape<Request>): Promise<Request> {
-  return db.docUpdate(request, patch);
+  return db.docUpdate(request, patch).then(res => MIPluginHelper.update(res));
 }
 
 export function updateMimeType(
@@ -367,11 +368,13 @@ export async function duplicate(request: Request, patch: $Shape<Request> = {}): 
   const sortKeyIncrement = (nextSortKey - request.metaSortKey) / 2;
   const metaSortKey = request.metaSortKey + sortKeyIncrement;
 
-  return db.duplicate(request, { name, metaSortKey, ...patch });
+  return db.duplicate(request, { name, metaSortKey, ...patch }).then(res => {
+    return MIPluginHelper.duplicate(res);
+  });
 }
 
 export function remove(request: Request): Promise<void> {
-  return db.remove(request);
+  return db.remove(request).then(() => MIPluginHelper.remove(request));
 }
 
 export async function all(): Promise<Array<Request>> {

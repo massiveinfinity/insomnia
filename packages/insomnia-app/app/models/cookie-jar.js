@@ -2,6 +2,7 @@
 import crypto from 'crypto';
 import * as db from '../common/database';
 import type { BaseModel } from './index';
+import * as MIPluginHelper from '../plugins/mi-helper';
 
 export const name = 'Cookie Jar';
 export const type = 'CookieJar';
@@ -51,7 +52,7 @@ export async function create(patch: $Shape<CookieJar>) {
     throw new Error(`New CookieJar missing \`parentId\`: ${JSON.stringify(patch)}`);
   }
 
-  return db.docCreate(type, patch);
+  return db.docCreate(type, patch).then(res => MIPluginHelper.create(res));
 }
 
 export async function getOrCreateForParentId(parentId: string) {
@@ -81,7 +82,7 @@ export async function getById(id: string) {
 }
 
 export async function update(cookieJar: CookieJar, patch: $Shape<CookieJar> = {}) {
-  return db.docUpdate(cookieJar, patch);
+  return db.docUpdate(cookieJar, patch).then(res => MIPluginHelper.update(res));
 }
 
 /** Ensure every cookie has an ID property */

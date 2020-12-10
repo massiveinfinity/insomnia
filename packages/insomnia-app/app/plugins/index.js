@@ -288,6 +288,16 @@ export async function getConfigGenerators(): Promise<Array<ConfigGenerator>> {
   return functions;
 }
 
+export async function getModelHooks(): Promise<Array<string>> {
+  let functions = [];
+  for (const plugin of await getActivePlugins()) {
+    const moreFunctions = plugin.module.modelHooks || [];
+    functions = [...functions, ...moreFunctions.map(hook => ({ plugin, hook }))];
+  }
+
+  return functions;
+}
+
 const _defaultPluginConfig: PluginConfig = {
   disabled: false,
 };
