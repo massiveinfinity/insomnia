@@ -4,6 +4,7 @@ import * as Workspace from '../models/workspace';
 import * as RequestGroup from '../models/request-group';
 import * as Environment from '../models/environment';
 import * as plugins from '../plugins';
+import * as pluginStore from './context/store';
 
 export type RequestType = {
   _id: string,
@@ -47,7 +48,14 @@ async function callPluginModelHooks(hookData) {
   const appPlugins = await plugins.getModelHooks();
   for (const { plugin, hook } of appPlugins) {
     try {
-      await hook(hookData);
+      const store = {
+        ...(pluginStore.init(plugin): Object).store,
+      };
+
+      await hook({
+        store,
+        hook: hookData,
+      });
     } catch (err) {
       err.plugin = plugin;
       throw err;
