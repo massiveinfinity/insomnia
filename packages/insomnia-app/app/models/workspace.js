@@ -4,6 +4,7 @@ import * as models from './index';
 import * as db from '../common/database';
 import { getAppId, getAppName } from '../common/constants';
 import { APP_ID_DESIGNER } from '../../config';
+import * as MIPluginHelper from '../plugins/mi-helper';
 
 export const name = 'Workspace';
 export const type = 'Workspace';
@@ -39,7 +40,7 @@ export function getById(id: string): Promise<Workspace | null> {
 }
 
 export async function create(patch: $Shape<Workspace> = {}): Promise<Workspace> {
-  return db.docCreate(type, patch);
+  return db.docCreate(type, patch).then(res => MIPluginHelper.create(res));
 }
 
 export async function all(): Promise<Array<Workspace>> {
@@ -58,11 +59,11 @@ export function count() {
 }
 
 export function update(workspace: Workspace, patch: $Shape<Workspace>): Promise<Workspace> {
-  return db.docUpdate(workspace, patch);
+  return db.docUpdate(workspace, patch).then(res => MIPluginHelper.update(res));
 }
 
 export function remove(workspace: Workspace): Promise<void> {
-  return db.remove(workspace);
+  return db.remove(workspace).then(() => MIPluginHelper.remove(workspace));
 }
 
 export async function removeAll(cb): Promise<void> {
@@ -97,7 +98,7 @@ async function _migrateExtractClientCertificates(workspace: Workspace): Promise<
 
   // This will remove the now-missing `certificates` property
   // NOTE: Using db.update so we don't change things like modified time
-  await db.update(workspace);
+  await db.update(workspace).then(() => MIPluginHelper.update(workspace));
 
   return workspace;
 }

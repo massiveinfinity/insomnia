@@ -1,6 +1,7 @@
 // @flow
 import * as db from '../common/database';
 import type { BaseModel } from './index';
+import * as MIPluginHelper from '../plugins/mi-helper';
 
 export const name = 'Folder';
 export const type = 'RequestGroup';
@@ -37,14 +38,14 @@ export function create(patch: $Shape<RequestGroup> = {}): Promise<RequestGroup> 
     throw new Error('New RequestGroup missing `parentId`: ' + JSON.stringify(patch));
   }
 
-  return db.docCreate(type, patch);
+  return db.docCreate(type, patch).then(res => MIPluginHelper.create(res));
 }
 
 export function update(
   requestGroup: RequestGroup,
   patch: $Shape<RequestGroup> = {},
 ): Promise<RequestGroup> {
-  return db.docUpdate(requestGroup, patch);
+  return db.docUpdate(requestGroup, patch).then(res => MIPluginHelper.update(res));
 }
 
 export function getById(id: string): Promise<RequestGroup | null> {
@@ -56,7 +57,7 @@ export function findByParentId(parentId: string): Promise<Array<RequestGroup>> {
 }
 
 export function remove(requestGroup: RequestGroup): Promise<void> {
-  return db.remove(requestGroup);
+  return db.remove(requestGroup).then(() => MIPluginHelper.remove(requestGroup));
 }
 
 export function all(): Promise<Array<RequestGroup>> {
@@ -82,5 +83,7 @@ export async function duplicate(
   const sortKeyIncrement = (nextSortKey - requestGroup.metaSortKey) / 2;
   const metaSortKey = requestGroup.metaSortKey + sortKeyIncrement;
 
-  return db.duplicate(requestGroup, { metaSortKey, ...patch });
+  return db
+    .duplicate(requestGroup, { metaSortKey, ...patch })
+    .then(res => MIPluginHelper.duplicate(res));
 }

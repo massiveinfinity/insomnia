@@ -3,6 +3,7 @@ import * as crypto from 'crypto';
 import * as db from '../common/database';
 import type { BaseModel } from './index';
 import type { Workspace } from './workspace';
+import * as MIPluginHelper from '../plugins/mi-helper';
 
 export const name = 'Environment';
 export const type = 'Environment';
@@ -43,11 +44,11 @@ export function create(patch: $Shape<Environment> = {}): Promise<Environment> {
     throw new Error(`New Environment missing \`parentId\`: ${JSON.stringify(patch)}`);
   }
 
-  return db.docCreate(type, patch);
+  return db.docCreate(type, patch).then(res => MIPluginHelper.create(res));
 }
 
 export function update(environment: Environment, patch: $Shape<Environment>): Promise<Environment> {
-  return db.docUpdate(environment, patch);
+  return db.docUpdate(environment, patch).then(res => MIPluginHelper.update(res));
 }
 
 export function findByParentId(parentId: string): Promise<Array<Environment>> {
@@ -93,11 +94,13 @@ export async function duplicate(environment: Environment): Promise<Environment> 
   // Calculate new sort key
   const metaSortKey = (environment.metaSortKey + nextSortKey) / 2;
 
-  return db.duplicate(environment, { name, metaSortKey });
+  return db
+    .duplicate(environment, { name, metaSortKey })
+    .then(res => MIPluginHelper.duplicate(res));
 }
 
 export function remove(environment: Environment): Promise<void> {
-  return db.remove(environment);
+  return db.remove(environment).then(() => MIPluginHelper.remove(environment));
 }
 
 export function all(): Promise<Array<Environment>> {
