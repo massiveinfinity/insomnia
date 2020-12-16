@@ -29,11 +29,12 @@ function fromGitRef() {
     TRAVIS_COMMIT,
     TRAVIS_CURRENT_BRANCH,
   } = process.env;
-
   const gitCommit = GITHUB_SHA || TRAVIS_COMMIT;
   const gitRef =
     GIT_TAG || GITHUB_REF || TRAVIS_TAG || TRAVIS_CURRENT_BRANCH || 'core@2020.4.3-alpha.1';
-  const tagMatch = gitRef.match(/(designer|core)@(\d{4}\.\d+\.\d+(-(alpha|beta)\.\d+)?)$/);
+  const tagMatch = gitRef.match(
+    /(designer|core)@(\d{4}\.\d+\.\d+(-(alpha|beta|massiveinfinity)\.\d+)?)$/,
+  );
 
   const app = tagMatch ? tagMatch[1] : null;
   const version = tagMatch ? tagMatch[2] : null;
