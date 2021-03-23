@@ -22,15 +22,15 @@ function fromSmokeTest() {
 
 function fromGitRef() {
   const {
-    GIT_TAG,
-    GITHUB_REF,
+    // GIT_TAG,
+    // GITHUB_REF,
     GITHUB_SHA,
-    TRAVIS_TAG,
+    // TRAVIS_TAG,
     TRAVIS_COMMIT,
-    TRAVIS_CURRENT_BRANCH,
+    // TRAVIS_CURRENT_BRANCH,
   } = process.env;
   const gitCommit = GITHUB_SHA || TRAVIS_COMMIT;
-  const gitRef = GIT_TAG || GITHUB_REF || TRAVIS_TAG || TRAVIS_CURRENT_BRANCH;
+  const gitRef = 'core@2020.5.2-massiveinfinity.1'; // GIT_TAG || GITHUB_REF || TRAVIS_TAG || TRAVIS_CURRENT_BRANCH;
   const tagMatch = gitRef.match(
     /(designer|core)@(\d{4}\.\d+\.\d+(-(alpha|beta|massiveinfinity)\.\d+)?)$/,
   );

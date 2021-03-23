@@ -34,7 +34,7 @@
     "test:smoke:core:package": "npm run test:core:package --prefix packages/insomnia-smoke-test",
     "test:smoke:designer:package": "npm run test:designer:package --prefix packages/insomnia-smoke-test",
     "test:smoke:cli": "npm run test:cli --prefix packages/insomnia-smoke-test",
-    "mi-build": "npm run clean && npm run bootstrap && GIT_TAG=core@2020.5.2-massiveinfinity.1 npm run app-build && npm run app-package"
+    "mi-build": "npm run clean && npm run bootstrap && npm run app-build && npm run app-package"
   },
   "lint-staged": {
     "{packages,plugins}/**/*.{js,json}": [
