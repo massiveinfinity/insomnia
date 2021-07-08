@@ -1,10 +1,23 @@
 .themes {
-  padding-top: var(--padding-lg);
+  &.general__preview {
+    padding-top: var(--padding-lg);
+
+  }
+
+  &.select__preview {
+    padding-top: var(--padding-xxs);
+    padding-bottom: var(--padding-xxs);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 
   .themes__row {
     display: flex;
     flex-direction: row;
     margin-bottom: var(--padding-lg);
+    margin-left: calc(var(--padding-md) * -1);
+    margin-right: calc(var(--padding-md) * -1);
   }
 
   .themes__theme {
@@ -63,12 +76,12 @@
     overflow: hidden;
     box-shadow: 0 0 0 1px var(--hl-sm);
 
-    &.active {
+    &.active:enabled {
       box-shadow: 0 0 0 var(--padding-xs) var(--color-surprise);
     }
 
-    &.active,
-    &:hover {
+    &.active:enabled,
+    &:hover:enabled {
       transform: scale(1.05);
     }
 
