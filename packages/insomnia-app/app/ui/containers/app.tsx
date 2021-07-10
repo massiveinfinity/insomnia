@@ -764,6 +764,7 @@ class App extends PureComponent<AppProps, State> {
         forceRefreshHeaderCounter: this.state.forceRefreshHeaderCounter + 1,
       });
     }, 500);
+    // @ts-ignore
     return newRequest;
   }
 

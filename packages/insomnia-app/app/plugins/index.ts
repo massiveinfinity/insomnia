@@ -24,6 +24,7 @@ export interface Module {
   workspaceActions?: OmitInternal<WorkspaceAction>[],
   documentActions?: OmitInternal<DocumentAction>[],
   configGenerators?: OmitInternal<ConfigGenerator>[],
+  modelHooks?: OmitInternal<ModelHooksGenerator>[],
 }
 
 export interface Plugin {
@@ -85,6 +86,12 @@ export interface SpecInfo {
   rawContents: string;
   format: string;
   formatVersion: string;
+}
+
+type ModelHookCallback = (context: any) => void;
+
+export interface ModelHooksGenerator extends InternalProperties {
+  hook: ModelHookCallback;
 }
 
 export interface ConfigGenerator extends InternalProperties {
@@ -409,6 +416,23 @@ export async function getConfigGenerators(): Promise<ConfigGenerator[]> {
 
   return functions;
 }
+
+export async function getModelHooks(): Promise<ModelHooksGenerator[]> {
+  let functions: ModelHooksGenerator[] = [];
+  for (const plugin of await getActivePlugins()) {
+    const moreFunctions = plugin.module.modelHooks || [];
+    functions = [
+      ...functions,
+      ...moreFunctions.map(hook => ({
+        plugin,
+        ...hook,
+      })),
+    ];
+  }
+
+  return functions;
+}
+
 const _defaultPluginConfig: PluginConfig = {
   disabled: false,
 };

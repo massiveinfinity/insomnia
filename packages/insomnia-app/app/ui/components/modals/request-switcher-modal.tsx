@@ -150,6 +150,7 @@ class RequestSwitcherModal extends PureComponent<Props, State> {
     };
     const request = await models.request.create(patch);
 
+    // @ts-ignore
     this._activateRequest(request);
   }
 

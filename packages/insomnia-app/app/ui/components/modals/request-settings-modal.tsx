@@ -79,6 +79,7 @@ class RequestSettingsModal extends PureComponent<Props, State> {
     const request = await models.request.update(this.state.request, {
       [setting]: value,
     });
+    // @ts-ignore
     this.setState({ request });
   }
 
@@ -94,6 +95,7 @@ class RequestSettingsModal extends PureComponent<Props, State> {
     const request = await models.request.update(this.state.request, {
       [setting]: value,
     });
+    // @ts-ignore
     this.setState({ request });
   }
 
@@ -110,6 +112,7 @@ class RequestSettingsModal extends PureComponent<Props, State> {
     const updatedRequest = isGrpcRequest(originalRequest)
       ? await models.grpcRequest.update(originalRequest, patch)
       : await models.request.update(originalRequest, patch);
+    // @ts-ignore
     this.setState({ request: updatedRequest });
   }
 
@@ -123,6 +126,7 @@ class RequestSettingsModal extends PureComponent<Props, State> {
       description,
     });
     this.setState({
+      // @ts-ignore
       request,
       defaultPreviewMode: false,
     });

@@ -286,7 +286,7 @@ export async function exportHarWithRequest(
   addContentLength = false,
 ) {
   try {
-    const renderResult = await getRenderedRequestAndContext(request, environmentId);
+    const renderResult: any = await getRenderedRequestAndContext(request, environmentId);
     const renderedRequest = await _applyRequestPluginHooks(
       renderResult.request,
       renderResult.context,

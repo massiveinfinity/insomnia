@@ -887,10 +887,11 @@ export async function sendWithSettings(
     parentId: request._id,
   });
   const environment: Environment | null = await models.environment.getById(environmentId || 'n/a');
-  let renderResult: {
-    request: RenderedRequest;
-    context: Record<string, any>;
-  };
+  // let renderResult: {
+  //   request: RenderedRequest;
+  //   context: Record<string, any>;
+  // };
+  let renderResult: any;
 
   try {
     renderResult = await getRenderedRequestAndContext(newRequest, environmentId);
@@ -949,7 +950,7 @@ export async function send(
     RENDER_PURPOSE_SEND,
     extraInfo,
   );
-  const renderedRequestBeforePlugins = renderResult.request;
+  const renderedRequestBeforePlugins: any = renderResult.request;
   const renderedContextBeforePlugins = renderResult.context;
   const workspaceDoc = ancestors.find(isWorkspace);
   const workspace = await models.workspace.getById(workspaceDoc ? workspaceDoc._id : 'n/a');

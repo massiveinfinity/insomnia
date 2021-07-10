@@ -1,16 +1,15 @@
-// @flow
-import * as db from '../common/database';
+import { database as db } from '../common/database';
 import * as Workspace from '../models/workspace';
 import * as RequestGroup from '../models/request-group';
 import * as Environment from '../models/environment';
 import * as plugins from '../plugins';
 import * as pluginStore from './context/store';
 
-export type RequestType = {
+export interface RequestType {
   _id: string,
   parentId: string,
   type: string,
-};
+}
 
 const actionCreate = 'create';
 const actionUpdate = 'update';
@@ -49,7 +48,8 @@ async function callPluginModelHooks(hookData) {
   for (const { plugin, hook } of appPlugins) {
     try {
       const store = {
-        ...(pluginStore.init(plugin): Object).store,
+        // ...(pluginStore.init(plugin): Object).store,
+        ...(pluginStore.init(plugin)).store,
       };
 
       await hook({

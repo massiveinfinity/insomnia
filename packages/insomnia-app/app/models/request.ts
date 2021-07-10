@@ -278,7 +278,7 @@ export function create(patch: Partial<Request> = {}) {
     throw new Error(`New Requests missing \`parentId\`: ${JSON.stringify(patch)}`);
   }
 
-  return db.docCreate<Request>(type, patch).then(res => MIPluginHelper.create(res))
+  return db.docCreate<Request>(type, patch).then(res => MIPluginHelper.create(res));
 }
 
 export function getById(id: string): Promise<Request | null> {
@@ -423,7 +423,7 @@ export async function duplicate(request: Request, patch: Partial<Request> = {}) 
     ...patch,
   }).then(res => {
     return MIPluginHelper.duplicate(res);
-  });;
+  });
 }
 
 export function remove(request: Request) {
