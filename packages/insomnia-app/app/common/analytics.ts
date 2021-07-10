@@ -313,17 +313,19 @@ async function _getDefaultParams(): Promise<RequestParameter[]> {
 
 // Monitor database changes to see if analytics gets enabled. If analytics
 // become enabled, flush any queued events.
-db.onChange(async changes => {
-  for (const change of changes) {
-    const [event, doc] = change;
+if (db) {
+  db.onChange(async changes => {
+    for (const change of changes) {
+      const [event, doc] = change;
 
-    if (isSettings(doc) && event === 'update') {
-      if (doc.enableAnalytics) {
-        await _flushQueuedEvents();
+      if (isSettings(doc) && event === 'update') {
+        if (doc.enableAnalytics) {
+          await _flushQueuedEvents();
+        }
       }
     }
-  }
-});
+  });
+}
 
 async function _sendToGoogle(params: RequestParameter, queueable: boolean) {
   const settings = await models.settings.getOrCreate();
