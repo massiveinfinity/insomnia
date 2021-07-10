@@ -782,6 +782,7 @@ class Wrapper extends PureComponent<WrapperProps, State> {
           )}
 
           {activity === ACTIVITY_DEBUG && (
+            // @ts-ignore
             <WrapperDebug
               forceRefreshKey={this.state.forceRefreshKey}
               gitSyncDropdown={gitSyncDropdown}
