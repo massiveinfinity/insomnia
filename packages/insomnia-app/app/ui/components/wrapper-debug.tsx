@@ -82,8 +82,10 @@ class WrapperDebug extends PureComponent<Props> {
         syncItems={syncItems} />;
     }
 
-    const gitSync = design && gitSyncDropdown;
-    const sync = insomniaSync || gitSync;
+    const gitSync = design && gitSyncDropdown || insomniaSync;
+    // const sync = insomniaSync || gitSync;
+    // Barry: Force to show GIT Sync button
+    const sync = gitSyncDropdown || gitSync;
 
     return (
       <WorkspacePageHeader
