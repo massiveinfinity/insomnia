@@ -36,7 +36,7 @@
     "styled-components": "^4.4.1",
     "url-join": "^4.0.1",
     "webpack": "^4.42.1",
-    "webpack-cli": "^3.3.11"
+    "webpack-cli": "^3.3.12"
   },
   "gitHead": "d91e6735a76295166545a42c170328da4ab70dd3"
 }
